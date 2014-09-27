@@ -4,8 +4,9 @@
 #        Storage for mobile devices such as Rhel-based OS laptops
 #
 # Author: Athanasius C. Kebei
+#
 # References:
-# https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/5/html/Installation_Guide/Disk_Encr#yption_Guide.html
+# https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/5/html/Installation_Guide/Disk_Encr#yption_Gui#de.html
 # https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/pdf/Storage_Administration_Guide/Red_Hat_Ent#erprise_Linux-6-Storage_Administration_Guide-en-US.pdf
 #
 # Encrypt-Script-proper.sh
