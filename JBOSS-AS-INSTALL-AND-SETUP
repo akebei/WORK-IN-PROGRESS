@@ -1,0 +1,107 @@
+############################################################################################################################## 
+2 ##  Title: Jboss 7.1 install 
+  ##
+3 ##  Author: Athanasius C. Kebei 
+4 ##  Work in Progress 
+5 ##  References:  
+6 ############################################################################################################################# 
+7 #!/bin/bash -vvvvv 
+ 
+9 # Step 1: JDK installation and verification 
+10 yum -y install java-1.7.0-openjdk-devel.X86_64 
+11 java -version 
+12 
+ 
+13 # Step 2: Download JBoss and the installation procedure 
+14 cd /tmp 
+15 wget http://download.jboss.org/jbossas/7.1/jboss-as-7.1.1.Final/jboss-as-7.1.1.Final.zip 
+16 unzip jboss-as-7.1.1.Fincal.zip -d /usr/share 
+17 
+ 
+18 # 3. Add a new user and group for jboss 
+19 groupadd jboss-as 
+20 useradd -s /bin/bash -g jboss-as -d /usr/share/jboss-as-7.1.1.Final jboss-as 
+21 # Change ownership of the JBoss home directory so all files are owned by the user jboss-as 
+22 chown -Rf jboss-as.jboss-as /usr/share/jboss-as-7.1.1.Final 
+23 
+ 
+24 # Step 3: Create the appropriate user 
+25 adduser -p afunde21 jboss 
+26 chown -fR jboss.jboss /usr/share/jboss-as-7.1.1.Final/ 
+27 su - jboss 
+28 cd /usr/share/jboss-as-7.1.1.Final/bin/      #contains all scripts to start/stop/manage jboss 
+29 # Add jboss management user 
+30 ./add-user.sh         
+31 
+ 
+32 # 4. Move the startup script provided with the package and the configuration file to respective directories. 
+33  mkdir /etc/jboss-as 
+34  cd /usr/share/jboss-as/bin/init.d 
+35  cp jboss-as.conf /etc/jboss-as/ 
+36  cp jboss-as-standalone.sh /etc/init.d/jboss-as 
+37 
+ 
+38 # 5. Backup before you make any changes 
+39 cp /etc/jboss-as/jboss-as.conf  /etc/jboss-as/jboss-as.conf.bak 
+40 cp /etc/init.d/jboss-as/jboss-as-standalone.sh  /etc/init.d/jboss-as/jboss-as-standalone.sh.bak 
+41 
+ 
+42 #6. Uncomment jboss_user and jboss_console 
+43 cat >> /etc/jboss-as/jboss-as.conf << EOF 
+44 JBOSS_USER=jboss-as 
+45 JBOSS_CONSOLE_LOG=/var/log/jboss-as/console.log 
+46 EOF 
+47 
+ 
+48 # 7. Start jboss server and enable persistence accross reboots 
+49 chmod 755 /etc/init.d/jboss-as 
+50 chkconfig --add jboss-as 
+51 chkconfig --level 234 jboss-as on 
+52 /etc/init.d/jboss-as start 
+53 
+ 
+54 # 8. Run netstat to confirm jboss starts listening on 8080, by default the server listens on the loopback address,  
+55 # to change this behavior edit standalone.xml file.  
+56 
+ 
+57 netstat -tunlp | grep 8080 
+58 #tcp 0 0 127.0.0.1:8080 0.0.0.0:* LISTEN 55856/java  
+59 
+ 
+60 #9. Backup and Change jboss bind address for management and public interfaces to ip address it should listen on 
+61 # Changed it to 0.0.0.0 so that it listens on every available interface. 
+62   
+63 cp /usr/share/jboss-as/standalone/configuration/standalone.xml /usr/share/jboss-as/standalone/configuration/standalone.xml.bak 
+64 cat > /usr/share/jboss-as/standalone/configuration/standalone.xml << EOF 
+65 < interfaces> 
+66  <interface name="management"> 
+67  <inet-address value="${jboss.bind.address.management:0.0.0.0}"/> 
+68  </interface> 
+69  <interface name="public"> 
+70  <inet-address value="${jboss.bind.address:0.0.0.0}"/> 
+71  </interface> 
+72  <!-- TODO - only show this if the jacorb subsystem is added --> 
+73  < interface name="unsecure"> 
+74  <!-- 
+75 ~ Used for IIOP sockets in the standard configuration. 
+76  ~ To secure JacORB you need to setup SSL 
+77  --> 
+78  <inet-address value="${jboss.bind.address.unsecure:127.0.0.1}"/> 
+79  </interface> 
+80  </interfaces> 
+81 EOF 
+82 
+ 
+83 # 10. Try to Access Jboss Management Interface at http://ipaddress-or-domainname:8080 
+84 # Mesaage: Your jboss application server is running. However you have not yet added any users to be able to access the admin console. 
+85 # Add an initial Management User (mgmt-users.properties) user: 
+86 cd /usr/share/jboss-as/bin/ 
+87 
+ 
+88 
+ 
+89 
+ 
+90 # Still working on this 
+91 
+ 
