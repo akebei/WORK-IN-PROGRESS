@@ -1,5 +1,5 @@
 #/bin/bash -vvvvv
-#######################################################################################################################
+################################################################################################################################
 # Title: Encrypt New storage for Neustar Crown-Jewels and grant access to group NeustarDirectors exclusively. Encrypt
 #        Storage for mobile devices such as Rhel-based OS laptops
 #
@@ -7,15 +7,15 @@
 #
 # References:
 # https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/5/html/Installation_Guide/Disk_Encr#yption_Gui#de.html
-# https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/pdf/Storage_Administration_Guide/Red_Hat_Ent#erprise_Linux-6-Storage_Administration_Guide-en-US.pdf
+# https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/pdf/Storage_Administration_Guide/Red_Hat_Ent#erprise#_Linux-6-Storage_Administration_Guide-en-US.pdf
 #
 # Encrypt-Script-proper.sh
-#######################################################################################################################
+################################################################################################################################
 cryptsetup luksFormat /dev/vda1
 YES
 !C0ntr01
 !C0ntr01
-crypsetup luksOpen /dev/vda1 verysafename #op
+crypsetup luksOpen /dev/vda1 verysafename     #opens /dev/vda1 as /dev/mapper/verysafe. All transactions on /dev/mapper/verysafe 
 !C0ntr01
 pvcreate /dev/mapper/verysafe
 vgcreate vgverysafe /dev/mapper/verysafe
@@ -23,7 +23,8 @@ lvcreate -n lvverysafe vgverysafe -l +300G
 mkfs.ext4 /dev/vgverysafe/lvverysafe
 blkid /dev/mapper/verysafe  
 mkdir /test
-echo -e 'UUID=GJJKku-idhhe--iwS3-oU4K-avEa-GkSa-Y2Hjc1 /test  ext4 defaults  0 0' >> /etc/fstab
+echo -e 'UUID=GJJKku-idhhe--iwS3-oU4K-avEa-GkSa-Y2Hjc1 /test  ext4 defaults  0 0' >> /etc/fstab    
+echo -e 'verysafe    /dev/vda1        none' >> /etc/crypttab
 mount /dev/vgverysafe/lvverysafe /test
 chgrp NeustarDirectors /dev/vgverysafe/lvverysafe
 setfacl -m d:g:NeustarDirectors:rwx /dev/vgverysafe/lvverysafe
