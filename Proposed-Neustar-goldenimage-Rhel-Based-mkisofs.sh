@@ -20,19 +20,20 @@ firewall --service=ssh
 bootloader --location=mbr --password=afunde21 --driveorder=sda,sdb,sdc --append="rhgb quiet"
 zerombr 
 clearpart --all --initlabel
-part /boot --fstype "ext4" --size=512 --asprimary
+part /boot --fstype "ext4" --size=514 --asprimary
 part swap --fstype swap --size=3024
-part pv.01 --size=1 --grow
-part pv.02 --size=1 --grow
-part pv.03 --size=1 --grow
-
+part pv.01 --size=514 --grow
+part pv.02 --size=25000 --grow
+part pv.03 --size=70000 --grow
 
 volgroup vgroup1 pv.02
-logvol /     --fstype ext4 --name=root --vgname=vgroup1 --size=25600 --grow
+logvol /     --fstype ext4 --name=root --vgname=vgroup1 --size=15600 --grow
 logvol /tmp  --fstype ext4 --name=tmp --vgname=vgroup1 --size=5000 --fsoptions="nodev,noexec,nosuid"
-logvol /home --fstype ext4 --name=home --vgname=vgroup1 --size=1024 --fsoptions="nodev"
+logvol /home --fstype ext4 --name=home --vgname=vgroup1 --size=2024 --fsoptions="nodev"
 volgroup vgroup2 pv.03
-logvol /var  --fstype ext4 --name=var  --vgname=vgroup2 --size=1024 --fsoptions="nodev"
+logvol /var --fstype ext4 --name=var --vgname=vgroup2 --size=30000 --fsoptions="nodev"
+logvol /usr --fstype ext4 --name=usr --vgname=vgroup2 --size=20000 --fsoptions="nodev,noexec,nosuid"
+logvol /opt --fstype ext4 --name=opt --vgname=vgroup2 --size=10000 --fsoptions="nodev,noexec,nosuid"
 logvol /var/log --fstype ext4 --name=varlog --vgname=vgroup2 --size=512 --fsoptions="nodev,noexec,nosuid"
 logvol /var/log/audit --fstype ext4 --name=audit --vgname=vgroup2 --size=256 --fsoptions="nodev,noexec,nosuid"
 
@@ -103,25 +104,13 @@ sed -i "/pam_cracklib.so/s/retry=3/retry=3 minlen=12 dcredit=-1 ucredit=-1 ocred
 sed -i "5i\auth\trequired\tpam_tally2.so deny=5 onerr=fail" /etc/pam.d/system-auth
 sed -i "/PROMPT/s/yes/no/" /etc/sysconfig/init
 
-gconftool-2 --direct \
-              --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory \
-              --type int \
-              --set /apps/gnome-screensaver/idle_delay 15
+gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory --type int --set /apps/gnome-screensaver/idle_delay 15
 
-gconftool-2 --direct \
-              --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory \
-              --type bool \
-              --set /apps/gnome-screensaver/idle_activation_enabled true
+gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory --type bool --set /apps/gnome-screensaver/idle_activation_enabled true
 
-gconftool-2 --direct \
-              --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory \
-              --type bool \
-              --set /apps/gnome-screensaver/lock_enabled true
+gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory --type bool --set /apps/gnome-screensaver/lock_enabled true
 
-gconftool-2 --direct \
-              --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory \
-              --type string \
-              --set /apps/gnome-screensaver/mode blank-only
+gconftool-2 --direct --config-source xml:readwrite:/etc/gconf/gconf.xml.mandatory --type string --set /apps/gnome-screensaver/mode blank-only
 
 echo -e "\n-- WARNING --\nThis system is for the use of authorized users only. Individuals\nusing this computer system without authority or in excess of their\nauthority are subject to having all their activities on this system\nmonitored and recorded by system personnel. Anyone using this\nsystem expressly consents to such monitoring and is advised that\nif such monitoring reveals possible evidence of criminal activity\nsystem personal may provide the evidence of such monitoring to law\nenforcement officials.\n" > /etc/issue
 
