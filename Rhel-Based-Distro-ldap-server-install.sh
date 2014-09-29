@@ -3,6 +3,7 @@
 # Title: Install and Congure LDAP Server on Rhel 6 for Centralized Authenication
 #
 # Author: Athanasius C. Kebei
+#
 # References:
 # https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Deployment_Guide/ch-Directory_Servers.html
 # http://www.unixmen.com/setup-directory-serverldap-in-centos-6-4-rhel-6-4/
@@ -11,7 +12,7 @@
 
 
 ###############################################################################################################################
-# 1. For full name resolution insert your LDAP Server FQDN in /etc/host file
+# 1. For full name resolution insert your LDAP Server FQDN in its own /etc/host file
 ###############################################################################################################################
 cat >> /etc/hosts << EOF
 192.168.1.10	ldapserver1.waselinux.net        ldapserver1
@@ -81,7 +82,7 @@ ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/inetorgperson.ldif
 #6.  Generate encrypted password
 slappasswd -s secret
 !C0ntro1 
- !C0ntro1 
+!C0ntro1 
 # {SSHA}xxxxxxxxxxxxxxxxxxxxxxxx                # You will need this in the backend.ldif
 
 # 7. Create backend.ldif 
@@ -276,9 +277,11 @@ do
 done
 EOF
 
+# Now the local users ldapuser.sh script is on the system enable execution. This script will wok wonders on client servers
+# with local users.
+
 chmod u+x ldapuser.sh
 sh ldapuser.sh
-
 
 ldapadd -x -D cn=admin,dc=waselinux,dc=net -W -f ldapuser.ldif
 
@@ -294,7 +297,7 @@ ldapadd -x -D cn=admin,dc=waselinux,dc=net -W -f ldapuser.ldif
 # adding new entry "uid=fedora,ou=people,dc=waselinux,dc=net"
 
 
-# 12. Add existing local groups to LDAP directory
+# 12. Add existing local groups to LDAP directory. Same principle as ldapuser.sh
 
 cat > ldapgroup.sh << EOF
 # extract local groups who have 500-999 digit UID
